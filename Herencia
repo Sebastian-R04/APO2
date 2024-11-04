@@ -1,0 +1,159 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+
+abstract class Vehiculo {
+    protected String marca;
+    protected String modelo;
+
+    public Vehiculo(String marca, String modelo) {
+        this.marca = marca;
+        this.modelo = modelo;
+    }
+
+    public abstract String detallesVehiculo();
+
+   
+    public String toString() {
+        return "Marca: " + marca + ", Modelo: " + modelo + " - " + detallesVehiculo();
+    }
+}
+
+
+class Motocicleta extends Vehiculo {
+    private int cilindrada;
+
+    public Motocicleta(String marca, String modelo, int cilindrada) {
+        super(marca, modelo);
+        this.cilindrada = cilindrada;
+    }
+
+ 
+    public String detallesVehiculo() {
+        return "Motocicleta, Cilindrada: " + cilindrada + " cc";
+    }
+}
+
+
+class Camion extends Vehiculo {
+    private int capacidadCarga;
+
+    public Camion(String marca, String modelo, int capacidadCarga) {
+        super(marca, modelo);
+        this.capacidadCarga = capacidadCarga;
+    }
+
+  
+    public String detallesVehiculo() {
+        return "Camión, Capacidad de carga: " + capacidadCarga + " kg";
+    }
+}
+
+
+class VehiculoBasico extends Vehiculo {
+    private int cilindraje;
+
+    public VehiculoBasico(String marca, String modelo, int cilindraje) {
+        super(marca, modelo);
+        this.cilindraje = cilindraje;
+    }
+
+   
+    public String detallesVehiculo() {
+        return "Vehículo Básico, Cilindraje: " + cilindraje + " cc";
+    }
+}
+
+
+public class Concesionario extends JFrame {
+    private List<Vehiculo> vehiculos = new ArrayList<>();
+    private JTextArea txtListaVehiculos;
+    private JComboBox<String> cmbTipoVehiculo;
+    private JTextField txtMarca, txtModelo;
+
+    public Concesionario() {
+        setTitle("Concesionario de Vehículos");
+        setSize(600, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        
+        JPanel panelEntrada = new JPanel(new GridLayout(3, 2, 10, 10));
+        txtMarca = new JTextField();
+        txtModelo = new JTextField();
+        cmbTipoVehiculo = new JComboBox<>(new String[]{"Vehículo Básico", "Motocicleta", "Camión"});
+        JButton btnAgregar = new JButton("Agregar Vehículo");
+
+        panelEntrada.add(new JLabel("Marca:"));
+        panelEntrada.add(txtMarca);
+        panelEntrada.add(new JLabel("Modelo:"));
+        panelEntrada.add(txtModelo);
+        panelEntrada.add(new JLabel("Tipo de Vehículo:"));
+        panelEntrada.add(cmbTipoVehiculo);
+        
+   
+        btnAgregar.addActionListener(this::agregarVehiculo);
+        
+       
+        txtListaVehiculos = new JTextArea();
+        txtListaVehiculos.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(txtListaVehiculos);
+
+     
+        add(panelEntrada, BorderLayout.NORTH);
+        add(btnAgregar, BorderLayout.SOUTH);
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+    private void agregarVehiculo(ActionEvent e) {
+        String marca = txtMarca.getText();
+        String modelo = txtModelo.getText();
+        String tipo = (String) cmbTipoVehiculo.getSelectedItem();
+
+        Vehiculo vehiculo;
+
+        try {
+            switch (tipo) {
+                case "Motocicleta":
+                    int cilindradaMoto = Integer.parseInt(JOptionPane.showInputDialog("Ingrese la cilindrada de la motocicleta (cc):"));
+                    vehiculo = new Motocicleta(marca, modelo, cilindradaMoto);
+                    break;
+                case "Camión":
+                    int capacidadCarga = Integer.parseInt(JOptionPane.showInputDialog("Ingrese la capacidad de carga del camión (kg):"));
+                    vehiculo = new Camion(marca, modelo, capacidadCarga);
+                    break;
+                default: // Vehículo Básico
+                    int cilindrajeBasico = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el cilindraje del vehículo básico (cc):"));
+                    vehiculo = new VehiculoBasico(marca, modelo, cilindrajeBasico);
+            }
+
+            vehiculos.add(vehiculo);
+            actualizarListaVehiculos();
+            limpiarCampos();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Error: Entrada inválida. Asegúrate de ingresar un valor numérico.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+   
+    private void actualizarListaVehiculos() {
+        txtListaVehiculos.setText("");
+        for (Vehiculo vehiculo : vehiculos) {
+            txtListaVehiculos.append(vehiculo.toString() + "\n");
+        }
+    }
+
+ 
+    private void limpiarCampos() {
+        txtMarca.setText("");
+        txtModelo.setText("");
+        cmbTipoVehiculo.setSelectedIndex(0);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Concesionario().setVisible(true));
+    }
+}
