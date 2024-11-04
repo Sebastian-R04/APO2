@@ -1,0 +1,135 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+
+interface CalculoArea {
+    double calcularArea();
+    String obtenerDetalles();
+}
+
+
+class Circulo implements CalculoArea {
+    private double radio;
+
+    public Circulo(double radio) {
+        this.radio = radio;
+    }
+
+    
+    public double calcularArea() {
+        return Math.PI * Math.pow(radio, 2);
+    }
+
+    
+    public String obtenerDetalles() {
+        return "Círculo (Radio: " + radio + ")";
+    }
+}
+
+
+class Rectangulo implements CalculoArea {
+    private double largo;
+    private double ancho;
+
+    public Rectangulo(double largo, double ancho) {
+        this.largo = largo;
+        this.ancho = ancho;
+    }
+
+   
+    public double calcularArea() {
+        return largo * ancho;
+    }
+
+    
+    public String obtenerDetalles() {
+        return "Rectángulo (Largo: " + largo + ", Ancho: " + ancho + ")";
+    }
+}
+
+
+public class TiendaFormas extends JFrame {
+    private List<CalculoArea> formas = new ArrayList<>();
+    private JTextArea txtListaFormas;
+    private JComboBox<String> cmbTipoForma;
+
+    public TiendaFormas() {
+        setTitle("Tienda de Formas Geométricas");
+        setSize(500, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        
+        JPanel panelEntrada = new JPanel(new GridLayout(2, 2, 5, 5));
+        cmbTipoForma = new JComboBox<>(new String[]{"Círculo", "Rectángulo"});
+        JButton btnAgregar = new JButton("Agregar Forma");
+
+        panelEntrada.add(new JLabel("Tipo de Forma:"));
+        panelEntrada.add(cmbTipoForma);
+        panelEntrada.add(btnAgregar);
+
+        
+        txtListaFormas = new JTextArea();
+        txtListaFormas.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(txtListaFormas);
+
+       
+        btnAgregar.addActionListener(this::agregarForma);
+
+   
+        add(panelEntrada, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+
+    private void agregarForma(ActionEvent e) {
+        String tipoForma = (String) cmbTipoForma.getSelectedItem();
+        CalculoArea forma = null;
+
+        try {
+            switch (tipoForma) {
+                case "Círculo":
+                    double radio = Double.parseDouble(JOptionPane.showInputDialog("Ingrese el radio del círculo:"));
+                    if (radio > 0) {
+                        forma = new Circulo(radio);
+                    } else {
+                        throw new IllegalArgumentException("El radio debe ser positivo.");
+                    }
+                    break;
+                case "Rectángulo":
+                    double largo = Double.parseDouble(JOptionPane.showInputDialog("Ingrese el largo del rectángulo:"));
+                    double ancho = Double.parseDouble(JOptionPane.showInputDialog("Ingrese el ancho del rectángulo:"));
+                    if (largo > 0 && ancho > 0) {
+                        forma = new Rectangulo(largo, ancho);
+                    } else {
+                        throw new IllegalArgumentException("El largo y el ancho deben ser positivos.");
+                    }
+                    break;
+            }
+
+            if (forma != null) {
+                formas.add(forma);
+                actualizarListaFormas();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Error: Ingrese un valor numérico válido.", "Error de Entrada", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error de Entrada", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+   
+    private void actualizarListaFormas() {
+        txtListaFormas.setText("");
+        for (CalculoArea forma : formas) {
+            txtListaFormas.append(forma.obtenerDetalles() + " - Área: " + forma.calcularArea() + "\n");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new TiendaFormas().setVisible(true));
+    }
+}
